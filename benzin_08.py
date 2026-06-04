@@ -1,47 +1,26 @@
+import streamlit as st
 
- Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022-2026)
+st.title("⛽ Бензин калькулятор")
 
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
+# Бастапқы деректер
+fuel = st.number_input("Бензин (литр)", min_value=0.0)
+consumption = st.number_input("100 км-ге шығын (литр)", value=9.2)
+days = st.number_input("Күн саны", min_value=1, step=1)
+start_km = st.number_input("Бастапқы одометр (км)", value=0)
 
-     http://www.apache.org/licenses/LICENSE-2.0
+if st.button("Есептеу"):
+    total_km = (fuel / consumption) * 100
 
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
--->
+    km_per_day = total_km / days
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
-    <link rel="shortcut icon" href="./favicon.png" />
-    <link
-      rel="preload"
-      href="./static/media/SourceSansVF-Upright.ttf.BsWL4Kly.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
+    st.subheader("📊 Нәтиже")
+    st.write(f"Жалпы жүріс: {total_km:.0f} км")
 
-    <title>Streamlit</title>
+    st.write(f"Күніне орташа: {km_per_day:.0f} км")
 
-    <!-- initialize window.prerenderReady to false and then set to true in React app when app is ready for indexing -->
-    <script>
-      window.prerenderReady = false
-    </script>
-    <script type="module" crossorigin src="./static/js/index.dkY5s53S.js"></script>
-    <link rel="stylesheet" crossorigin href="./static/css/index.M0-f_CLq.css">
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-  </body>
-</html>
+    st.write("📍 Күндік жоспар:")
+
+    current_km = start_km
+    for i in range(int(days)):
+        current_km += km_per_day
+        st.write(f"{i+1}-күн: {current_km:.0f} км")
