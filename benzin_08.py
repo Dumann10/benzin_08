@@ -1,8 +1,9 @@
+
 import streamlit as st
 import random
 import pandas as pd
 
-st.set_page_config(page_title="Benzin Pro", page_icon="⛽", layout="centered")
+st.set_page_config(page_title="Dumans Benzin Calculator", page_icon="⛽", layout="centered")
 
 # ---------- STYLE ----------
 st.markdown("""
@@ -31,9 +32,9 @@ div[data-testid="stMetric"] {
 </style>
 """, unsafe_allow_html=True)
 
-st.title("⛽ Benzin Pro Calculator")
+st.title("⛽ Dumans Benzin Calculator")
 
-# ---------- INPUT ----------
+# ---------- INPUTS ----------
 col1, col2 = st.columns(2)
 
 with col1:
@@ -41,14 +42,12 @@ with col1:
     fuel = st.number_input("⛽ Бензин (литр)", value=0.0)
 
 with col2:
+    consumption = st.number_input("📉 100 км шығын (L)", value=9.2)
     days = st.number_input("📅 Күн саны", min_value=1, value=1)
-
-consumption = st.number_input("📉 100 км шығын (L)", value=9.2)
 
 # ---------- CALC ----------
 if st.button("🚀 Есептеу"):
 
-    # бензинмен мүмкін жол
     possible_km = (fuel / consumption) * 100
 
     st.success("✅ Есеп дайын!")
@@ -63,29 +62,29 @@ if st.button("🚀 Есептеу"):
     # ---------- DAILY SPLIT ----------
     base = possible_km / days
 
-    current_km = start_km
+    current = start_km
     used = 0
 
     data = []
 
     for i in range(int(days)):
         if i == int(days) - 1:
-            km = round(possible_km - used)  # БЕНЗИН ТОЛЫҚ ТАУСЫЛАДЫ
+            km = round(possible_km - used)
         else:
             km = round(random.uniform(base * 0.85, base * 1.15))
             used += km
 
-        current_km += km
+        current += km
 
         data.append({
             "Күн": i + 1,
             "Күніне км": km,
-            "Жалпы одометр": current_km
+            "Одометр": current
         })
 
     df = pd.DataFrame(data)
 
-    st.subheader("📍 Күндік жүріс (жинақталып отырады)")
+    st.subheader("📍 Күндік жоспар")
     st.dataframe(df, use_container_width=True)
 
-    st.success("🔥 Бензин толық жұмсалды + күндерге бөлінді")
+    st.success("🔥 Бензин толық есептелді")
