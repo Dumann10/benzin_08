@@ -1,9 +1,8 @@
-
 import streamlit as st
-import pandas as pd
 import random
+import pandas as pd
 
-st.set_page_config(page_title="Benzin Pro Max", page_icon="⛽", layout="centered")
+st.set_page_config(page_title="Benzin Pro", page_icon="⛽", layout="centered")
 
 # ---------- STYLE ----------
 st.markdown("""
@@ -32,8 +31,7 @@ div[data-testid="stMetric"] {
 </style>
 """, unsafe_allow_html=True)
 
-st.title("⛽ Benzin Pro MAX")
-st.write("🚗 Ақылды маршрут + бензин толық есеп")
+st.title("⛽ Benzin Pro Calculator")
 
 # ---------- INPUT ----------
 col1, col2 = st.columns(2)
@@ -43,7 +41,6 @@ with col1:
     fuel = st.number_input("⛽ Бензин (литр)", value=0.0)
 
 with col2:
-    end_km = st.number_input("🏁 Соңғы км", value=0)
     days = st.number_input("📅 Күн саны", min_value=1, value=1)
 
 consumption = st.number_input("📉 100 км шығын (L)", value=9.2)
@@ -51,52 +48,44 @@ consumption = st.number_input("📉 100 км шығын (L)", value=9.2)
 # ---------- CALC ----------
 if st.button("🚀 Есептеу"):
 
-    total_km = end_km - start_km
+    # бензинмен мүмкін жол
+    possible_km = (fuel / consumption) * 100
 
-    if total_km <= 0:
-        st.error("❌ Соңғы км дұрыс емес!")
-    else:
-        st.success("✅ Есеп дайын!")
+    st.success("✅ Есеп дайын!")
 
-        # --- бензинге негізделген нақты қашықтық ---
-        possible_km_by_fuel = (fuel / consumption) * 100
+    st.subheader("📊 Нәтиже")
 
-        # Екеуінің минимумы → бензин толық кетеді
-        real_km = min(total_km, possible_km_by_fuel)
+    c1, c2, c3 = st.columns(3)
+    c1.metric("⛽ Бензин", f"{fuel} L")
+    c2.metric("🚗 Жол", f"{round(possible_km)} км")
+    c3.metric("📉 100 км", f"{consumption} L")
 
-        st.subheader("📊 Негізгі нәтиже")
+    # ---------- DAILY SPLIT ----------
+    base = possible_km / days
 
-        c1, c2, c3 = st.columns(3)
-        c1.metric("🚗 Жүріс", f"{round(real_km)} км")
-        c2.metric("⛽ Бензин", f"{fuel} L")
-        c3.metric("📉 100 км", f"{consumption} L")
+    current_km = start_km
+    used = 0
 
-        # ---------- DAILY SPLIT ----------
-        base = real_km / days
+    data = []
 
-        current = start_km
-        used_km = 0
+    for i in range(int(days)):
+        if i == int(days) - 1:
+            km = round(possible_km - used)  # БЕНЗИН ТОЛЫҚ ТАУСЫЛАДЫ
+        else:
+            km = round(random.uniform(base * 0.85, base * 1.15))
+            used += km
 
-        data = []
+        current_km += km
 
-        for i in range(int(days)):
-            if i == int(days) - 1:
-                km = round(real_km - used_km)
-            else:
-                km = round(random.uniform(base * 0.85, base * 1.15))
-                used_km += km
+        data.append({
+            "Күн": i + 1,
+            "Күніне км": km,
+            "Жалпы одометр": current_km
+        })
 
-            current += km
+    df = pd.DataFrame(data)
 
-            data.append({
-                "Күн": i + 1,
-                "Жүріс (км)": km,
-                "Одометр": current
-            })
+    st.subheader("📍 Күндік жүріс (жинақталып отырады)")
+    st.dataframe(df, use_container_width=True)
 
-        df = pd.DataFrame(data)
-
-        st.subheader("📍 Күндік жоспар")
-        st.dataframe(df, use_container_width=True)
-
-        st.success("🔥 Бензин толық пайдаланылды (баланс сақталған)")
+    st.success("🔥 Бензин толық жұмсалды + күндерге бөлінді")
