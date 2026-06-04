@@ -1,38 +1,62 @@
 import streamlit as st
 import random
 
+st.set_page_config(page_title="Бензин калькулятор", page_icon="⛽", layout="centered")
+
+st.markdown("""
+    <style>
+        .main {
+            background-color: #0f172a;
+            color: white;
+        }
+        .stButton>button {
+            background-color: #22c55e;
+            color: white;
+            border-radius: 10px;
+            height: 3em;
+            width: 100%;
+            font-size: 16px;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 st.title("⛽ Бензин калькулятор")
+st.write("Күндік жүріс пен маршрут жоспарын автоматты есептеу")
 
-fuel = st.number_input("Бензин (литр)", min_value=0.0)
-consumption = st.number_input("100 км-ге шығын (литр)", value=9.2)
-days = st.number_input("Күн саны", min_value=1, step=1)
-start_km = st.number_input("Бастапқы одометр (км)", value=0)
+col1, col2 = st.columns(2)
 
-if st.button("Есептеу"):
+with col1:
+    fuel = st.number_input("⛽ Бензин (литр)", min_value=0.0)
+
+    consumption = st.number_input("📉 100 км шығын", value=9.2)
+
+with col2:
+    days = st.number_input("📅 Күн саны", min_value=1, step=1)
+
+    start_km = st.number_input("🚗 Бастапқы км", value=0)
+
+if st.button("Есептеу 🚀"):
+
     total_km = (fuel / consumption) * 100
-
-    # Күндік базалық орташа
     base = total_km / days
 
-    # Күндерге бөлу (дөңгелетілген)
     daily = []
     total = 0
 
     for i in range(int(days)):
         if i == int(days) - 1:
-            value = round(total_km - total)  # соңғы күн түзету
+            value = round(total_km - total)
         else:
-            value = round(random.uniform(base * 0.8, base * 1.2))
+            value = round(random.uniform(base * 0.85, base * 1.15))
             total += value
         daily.append(value)
 
-    st.subheader("📊 Нәтиже")
-    st.write(f"Жалпы жүріс: {round(total_km)} км")
+    st.success(f"Жалпы жүріс: {round(total_km)} км")
 
-    current_km = start_km
+    current = start_km
 
-    st.write("📍 Күндік жоспар:")
+    st.subheader("📍 Күндік жоспар")
 
     for i, km in enumerate(daily):
-        current_km += km
-        st.write(f"{i+1}-күн: +{km} км → {round(current_km)} км")
+        current += km
+        st.write(f"**{i+1}-күн:** +{km} км → {round(current)} км")
