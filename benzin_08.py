@@ -1,8 +1,8 @@
 import streamlit as st
+import random
 
 st.title("⛽ Бензин калькулятор")
 
-# Бастапқы деректер
 fuel = st.number_input("Бензин (литр)", min_value=0.0)
 consumption = st.number_input("100 км-ге шығын (литр)", value=9.2)
 days = st.number_input("Күн саны", min_value=1, step=1)
@@ -11,16 +11,28 @@ start_km = st.number_input("Бастапқы одометр (км)", value=0)
 if st.button("Есептеу"):
     total_km = (fuel / consumption) * 100
 
-    km_per_day = total_km / days
+    # Күндік базалық орташа
+    base = total_km / days
+
+    # Күндерге бөлу (дөңгелетілген)
+    daily = []
+    total = 0
+
+    for i in range(int(days)):
+        if i == int(days) - 1:
+            value = round(total_km - total)  # соңғы күн түзету
+        else:
+            value = round(random.uniform(base * 0.8, base * 1.2))
+            total += value
+        daily.append(value)
 
     st.subheader("📊 Нәтиже")
-    st.write(f"Жалпы жүріс: {total_km:.0f} км")
+    st.write(f"Жалпы жүріс: {round(total_km)} км")
 
-    st.write(f"Күніне орташа: {km_per_day:.0f} км")
+    current_km = start_km
 
     st.write("📍 Күндік жоспар:")
 
-    current_km = start_km
-    for i in range(int(days)):
-        current_km += km_per_day
-        st.write(f"{i+1}-күн: {current_km:.0f} км")
+    for i, km in enumerate(daily):
+        current_km += km
+        st.write(f"{i+1}-күн: +{km} км → {round(current_km)} км")
